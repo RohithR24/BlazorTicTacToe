@@ -1,0 +1,79 @@
+@page "/calculator"
+
+<h3>Simple Calculator</h3>
+
+<div class="input-group mb-3">
+    <input type="text" class="form-control" placeholder="Enter number" @bind="InputValue">
+</div>
+    <div class="button-row">
+        <button class="btn btn-light" @onclick="() => AddNumber(1)">1</button>
+        <button class="btn btn-light" @onclick="() => AddNumber(2)">2</button>
+        <button class="btn btn-light" @onclick="() => AddNumber(3)">3</button>
+        <button class="btn btn-primary" @onclick="() => SetOperation('+'.ToString())">+</button>
+    </div>
+    <div class="button-row">
+        <button class="btn btn-light" @onclick="() => AddNumber(4)">4</button>
+        <button class="btn btn-light" @onclick="() => AddNumber(5)">5</button>
+        <button class="btn btn-light" @onclick="() => AddNumber(6)">6</button>
+        <button class="btn btn-primary" @onclick="() => SetOperation('-'.ToString())">-</button>
+    </div>
+    <div class="button-row">
+        <button class="btn btn-light" @onclick="() => AddNumber(7)">7</button>
+        <button class="btn btn-light" @onclick="() => AddNumber(8)">8</button>
+        <button class="btn btn-light" @onclick="() => AddNumber(9)">9</button>
+        <button class="btn btn-primary" @onclick="() => SetOperation('*'.ToString())">*</button>
+    </div>
+    <div class="button-row">
+        <button class="btn btn-light" @onclick="() =>  AddNumber(0)">0</button>
+        <button class="btn btn-danger" @onclick="Clear">C</button>
+        <button class="btn btn-success" @onclick="Calculate">=</button>
+        <button class="btn btn-primary" @onclick="() => SetOperation('/'.ToString())">/</button>
+    </div>
+
+<p>Result: @Result</p>
+
+@code{
+    string InputValue = "";
+    int Result = 0;
+    string CurrentOperation = null;
+    int StoredValue = 0;
+
+    void AddNumber(int number){
+        InputValue += number.ToString(); 
+    }
+    void SetOperation(string operation){
+        CurrentOperation = operation;
+        StoredValue = int.Parse(InputValue);
+        InputValue = "";
+    }
+
+    void Calculate(){
+        int currentValue =  int.Parse(InputValue);
+        switch(CurrentOperation){
+            case "+": 
+                Result = StoredValue + currentValue;
+                break;
+            case "-": 
+                Result = StoredValue - currentValue;
+                break;
+            case "*": 
+                Result = StoredValue *currentValue;
+                break;
+            case "/":
+                Result = StoredValue/currentValue;
+                break;
+            default : 
+                
+                break;
+            
+        }
+    }
+
+    void Clear(){
+        InputValue = "";
+        Result = 0;
+        CurrentOperation = null;
+        StoredValue = 0;
+    }
+}
+
