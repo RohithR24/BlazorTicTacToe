@@ -1,79 +1,121 @@
 @page "/calculator"
 
-<h3>Simple Calculator</h3>
+<div class="iphone-calculator">
+    <div class="display">
+        <div class="input-value">@(string.IsNullOrEmpty(InputValue) ? "0" : InputValue)</div>
+    </div>
 
-<div class="input-group mb-3">
-    <input type="text" class="form-control" placeholder="Enter number" @bind="InputValue">
+    <div class="buttons-container">
+        <div class="button-row">
+            <button class="btn function" @onclick="Clear">C</button>
+            <button class="btn function" @onclick="ToggleSign">+/-</button>
+            <button class="btn function" @onclick="CalculatePercent">%</button>
+            <button class="btn operator" @onclick="() => SetOperation('/'.ToString())">÷</button>
+        </div>
+        <div class="button-row">
+            <button class="btn number" @onclick="() => AddNumber(7)">7</button>
+            <button class="btn number" @onclick="() => AddNumber(8)">8</button>
+            <button class="btn number" @onclick="() => AddNumber(9)">9</button>
+            <button class="btn operator" @onclick="() => SetOperation('*'.ToString())">×</button>
+        </div>
+        <div class="button-row">
+            <button class="btn number" @onclick="() => AddNumber(4)">4</button>
+            <button class="btn number" @onclick="() => AddNumber(5)">5</button>
+            <button class="btn number" @onclick="() => AddNumber(6)">6</button>
+            <button class="btn operator" @onclick="() => SetOperation('-'.ToString())">−</button>
+        </div>
+        <div class="button-row">
+            <button class="btn number" @onclick="() => AddNumber(1)">1</button>
+            <button class="btn number" @onclick="() => AddNumber(2)">2</button>
+            <button class="btn number" @onclick="() => AddNumber(3)">3</button>
+            <button class="btn operator" @onclick="() => SetOperation('+'.ToString())">+</button>
+        </div>
+        <div class="button-row">
+            <button class="btn number zero" @onclick="() => AddNumber(0)">0</button>
+            <button class="btn number" @onclick="AddDecimalPoint">.</button>
+            <button class="btn operator equals" @onclick="Calculate">=</button>
+        </div>
+    </div>
 </div>
-    <div class="button-row">
-        <button class="btn btn-light" @onclick="() => AddNumber(1)">1</button>
-        <button class="btn btn-light" @onclick="() => AddNumber(2)">2</button>
-        <button class="btn btn-light" @onclick="() => AddNumber(3)">3</button>
-        <button class="btn btn-primary" @onclick="() => SetOperation('+'.ToString())">+</button>
-    </div>
-    <div class="button-row">
-        <button class="btn btn-light" @onclick="() => AddNumber(4)">4</button>
-        <button class="btn btn-light" @onclick="() => AddNumber(5)">5</button>
-        <button class="btn btn-light" @onclick="() => AddNumber(6)">6</button>
-        <button class="btn btn-primary" @onclick="() => SetOperation('-'.ToString())">-</button>
-    </div>
-    <div class="button-row">
-        <button class="btn btn-light" @onclick="() => AddNumber(7)">7</button>
-        <button class="btn btn-light" @onclick="() => AddNumber(8)">8</button>
-        <button class="btn btn-light" @onclick="() => AddNumber(9)">9</button>
-        <button class="btn btn-primary" @onclick="() => SetOperation('*'.ToString())">*</button>
-    </div>
-    <div class="button-row">
-        <button class="btn btn-light" @onclick="() =>  AddNumber(0)">0</button>
-        <button class="btn btn-danger" @onclick="Clear">C</button>
-        <button class="btn btn-success" @onclick="Calculate">=</button>
-        <button class="btn btn-primary" @onclick="() => SetOperation('/'.ToString())">/</button>
-    </div>
 
-<p>Result: @Result</p>
-
-@code{
+@code {
     string InputValue = "";
     int Result = 0;
     string CurrentOperation = null;
     int StoredValue = 0;
+    bool isNewInput = true;
 
-    void AddNumber(int number){
-        InputValue += number.ToString(); 
-    }
-    void SetOperation(string operation){
-        CurrentOperation = operation;
-        StoredValue = int.Parse(InputValue);
-        InputValue = "";
-    }
-
-    void Calculate(){
-        int currentValue =  int.Parse(InputValue);
-        switch(CurrentOperation){
-            case "+": 
-                Result = StoredValue + currentValue;
-                break;
-            case "-": 
-                Result = StoredValue - currentValue;
-                break;
-            case "*": 
-                Result = StoredValue *currentValue;
-                break;
-            case "/":
-                Result = StoredValue/currentValue;
-                break;
-            default : 
-                
-                break;
-            
+    void AddNumber(int number) {
+        if (isNewInput) {
+            InputValue = number.ToString();
+            isNewInput = false;
+        } else {
+            InputValue += number.ToString();
         }
     }
 
-    void Clear(){
+    void SetOperation(string operation) {
+        CurrentOperation = operation;
+        StoredValue = int.Parse(InputValue);
+        isNewInput = true;
+    }
+
+    void Calculate() {
+        if (string.IsNullOrEmpty(InputValue)) return;
+
+        int currentValue = int.Parse(InputValue);
+        switch (CurrentOperation) {
+            case "+":
+                Result = StoredValue + currentValue;
+                break;
+            case "-":
+                Result = StoredValue - currentValue;
+                break;
+            case "*":
+                Result = StoredValue * currentValue;
+                break;
+            case "/":
+                Result = StoredValue / currentValue;
+                break;
+            default:
+                Result = currentValue;
+                break;
+        }
+        InputValue = Result.ToString();
+        isNewInput = true;
+    }
+
+    void Clear() {
         InputValue = "";
         Result = 0;
         CurrentOperation = null;
         StoredValue = 0;
+        isNewInput = true;
+    }
+
+    void ToggleSign() {
+        if (string.IsNullOrEmpty(InputValue)) return;
+        
+        if (InputValue.StartsWith("-"))
+            InputValue = InputValue.Substring(1);
+        else
+            InputValue = "-" + InputValue;
+    }
+
+    void CalculatePercent() {
+        if (string.IsNullOrEmpty(InputValue)) return;
+        
+        double value = double.Parse(InputValue);
+        value = value / 100;
+        InputValue = value.ToString();
+    }
+
+    void AddDecimalPoint() {
+        if (isNewInput) {
+            InputValue = "0.";
+            isNewInput = false;
+        } else if (!InputValue.Contains(".")) {
+            InputValue += ".";
+        }
     }
 }
-
